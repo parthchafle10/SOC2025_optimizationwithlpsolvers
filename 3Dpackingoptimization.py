@@ -100,19 +100,19 @@ def run_3d_packing(ULD_L, ULD_W, ULD_H, boxes, objective_type="volume"):
         model.setObjective(
             gp.quicksum(boxes[i][3] * b[i] for i in n), GRB.MAXIMIZE)
 
-    # Solve
     model.Params.OutputFlag = 1
     model.optimize()
 
     # Output results
-    print("\n--- Packing Result ---")
+    if model.status == GRB.OPTIMAL:
+    print("\n Packing result:")
     for i in n:
         if b[i].X > 0.5:
             chosen_rot = [o for o in range(num_orient) if r[i, o].X > 0.5][0]
             dims = (lenx[i, chosen_rot], leny[i, chosen_rot], lenz[i, chosen_rot])
-            print(f"Box {i}: Packed at ({x[i].X:.1f}, {y[i].X:.1f}, {z[i].X:.1f}), Size={dims}")
-        else:
-            print(f"Box {i}: Not packed")
+            print(f"Box {i}: at ({x[i].X:.1f}, {y[i].X:.1f}, {z[i].X:.1f}) with dims {dims}")
+else:
+    print(" Model was infeasible or no optimal solution found.")
 
 if __name__ == "__main__":
     # Choose either manual input or hardcoded test
